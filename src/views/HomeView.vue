@@ -1,6 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import SingleProject from '@/components/SingleProject.vue'
+import FilterNav from '@/components/FilterNav.vue'
 
 const projects = ref([])
 
@@ -22,13 +23,30 @@ onMounted(async () => {
     console.log(e)
   }
 })
+
+const filter = ref('all')
+
+const filteredProjects = computed(() => {
+  if (filter.value === 'completed') {
+    return projects.value.filter((project) => project.complete)
+  }
+  if (filter.value === 'ongoing') {
+    return projects.value.filter((project) => !project.complete)
+  }
+
+  return projects.value
+})
 </script>
 
 <template>
   <div class="home">
+    <FilterNav
+      @filterChange="filter = $event"
+      :current="filter"
+    />
     <div v-if="projects.length">
       <div
-        v-for="project in projects"
+        v-for="project in filteredProjects"
         :key="project.id"
       >
         <SingleProject
